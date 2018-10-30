@@ -11,7 +11,7 @@ class Tetris:
 
     board_size = 6 # Define board size
     board = [["*" for x in range(6)] for x in range(6)] # Create board
-    blocks = []
+    blocks = [] # List of Blocks objects
 
     # Initialise
     def __init__(self): 
@@ -28,35 +28,41 @@ class Tetris:
     #.
 
 
+
     # Method used to move blocks
-    def move_blocks(self, direction=""):
+    def move_blocks(self, direction="down"):
         def move_down(sf, bl):
                 sf.board[bl.row][bl.col] = "*"
                 sf.board[bl.row + 1][bl.col] = bl.symbol
+                bl.row += 1
         def move_right(sf, bl):
                 sf.board[bl.row][bl.col] = "*"
                 sf.board[bl.row + 1][bl.col + 1] = bl.symbol
+                bl.row += 1
+                bl.col += 1
         def move_left(sf, bl):
                 sf.board[bl.row][bl.col] = "*"
                 sf.board[bl.row + 1][bl.col - 1] = bl.symbol
-        
-
-        
+                bl.row += 1
+                bl.col -= 1
+    
         for block in self.blocks:
-            if direction == "":
-                move_down(self, block)
+            if direction == "down":
+                if block.can_move("down"):
+                    move_down(self, block)
                 
-            elif direction == "right".lower():
-                if (block.col + 1) in range(self.board_size):
+            elif direction == "right":
+                if block.can_move("right"):
                     move_right(self, block)
-                else:
+                elif block.can_move("down"):
                     move_down(self, block)
 
-            elif direction == "left".lower():
-                if (block.col - 1) in range(self.board_size):
+            elif direction == "left":
+                if block.can_move("left"):
                     move_left(self, block)
-                else:
+                elif block.can_move("down"):
                     move_down(self, block)
+    #.
 
 
 
@@ -77,15 +83,37 @@ class Block(Tetris):
         self.blocks.append(self) # append created Block to the blocks list
     #.
 
+    # this method is used to tell if the block can move
+    def can_move(self, direction):
+        if direction == "down":
+            if (self.row + 1) in range(self.board_size)\
+               and self.board[self.row + 1][self.col] != self.symbol:
+                return True
+            
+        elif direction == "right":
+            if (self.row + 1) in range(self.board_size) and\
+               (self.col + 1) in range(self.board_size) and\
+                self.board[self.row + 1][self.col + 1] != self.symbol:
+                return True
+            
+        elif direction == "left":
+            if (self.row + 1) in range(self.board_size) and\
+               (self.col - 1) in range(self.board_size) and\
+               self.board[self.row + 1][self.col - 1] != self.symbol:
+                return True
+    #.
+        
+        
     
 
 
 Game = Tetris()
-
-kloc1 = Block()
-kloc1.appear()
-
 Game.show_board()
-Game.move_blocks(direction="right")
-Game.show_board()
+
+for i in range(12):
+    print("Turn {}".format(i+1))
+    if i == 0 or i == 5:
+        Block().appear()
+    Game.move_blocks(direction=input())
+    Game.show_board()
 
